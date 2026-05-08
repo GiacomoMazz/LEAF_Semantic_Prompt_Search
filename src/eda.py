@@ -49,3 +49,11 @@ print(df["difficulty"].value_counts())
 
 print(df["difficulty"].value_counts(normalize=True) * 100)
 # Output: intermediate and beginner prompts are the most frequent difficulty levels.
+
+# Final considerations:
+# The dataset is ready to use: no missing values were found and prompt ids are unique.
+# A small number of duplicated title-content pairs was found, but they are reported and not removed.
+# The dataset covers many categories, with no single category dominating the collection.
+# Engagement fields such as likes, upvotes, views, and uses are kept as metadata.
+# The text_for_embedding field should therefore focus on semantic fields:
+# title, category, subcategory, tags, and content.
