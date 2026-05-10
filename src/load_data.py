@@ -12,6 +12,7 @@
 # Output:
 # pandas DataFrame containing the raw dataset rows and columns.
 
+from __future__ import annotations
 
 from pathlib import Path
 
