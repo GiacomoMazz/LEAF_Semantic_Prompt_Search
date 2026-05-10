@@ -1,63 +1,109 @@
-# eda.py
+'''
+eda.py
 
-#
+This file performs the exploratory data analysis of the raw dataset.
+It checks dataset quality, duplicates, missing values, and the main
+metadata distributions in order to confirm that the data is ready for
+the following preprocessing and retrieval steps.
+
+'''
+
+from __future__ import annotations
+
+import pandas as pd
+
+from load_data import load_raw_dataset
+
 
 # Purpose:
-# Perform a lightweight exploratory data analysis on the LEAF PromptKaban dataset.
-# The goal is to inspect dataset structure, quality checks, and metadata distributions.
+# Analyze the raw dataset and summarize the main statistics needed to
+# understand its structure and quality.
+#
+# Behavior:
+# The function computes dataset size, duplicate counts, missing values,
+# category and language distributions, prompt length statistics, and
+# descriptive summaries of the main metadata fields.
+#
+# Output:
+# A dictionary containing the EDA summary results.
 
-from load_data import df
+def run_eda(df: pd.DataFrame) -> dict:
+    content_length = df["content"].astype(str).str.split().str.len()
 
-print(df.head())
+    summary = {
+        "shape": df.shape,
+        "columns": list(df.columns),
+        "missing_values_total": int(df.isna().sum().sum()),
+        "missing_values_by_column": df.isna().sum().to_dict(),
+        "duplicate_id_count": int(df["id"].duplicated().sum()),
+        "duplicate_title_content_count": int(
+            df.duplicated(subset=["title", "content"]).sum()
+        ),
+        "top_categories": df["category"].value_counts().head(10).to_dict(),
+        "top_category_percentages": (
+            (df["category"].value_counts(normalize=True) * 100).head(10).round(2)
+        ).to_dict(),
+        "top_languages": df["language"].value_counts().head(10).to_dict(),
+        "difficulty_distribution": df["difficulty"].value_counts().to_dict(),
+        "target_models": df["target_model"].value_counts().head(10).to_dict(),
+        "content_length_summary": content_length.describe().round(2).to_dict(),
+        "engagement_summary": (
+            df[
+                [
+                    "likes",
+                    "upvotes",
+                    "downvotes",
+                    "author_reputation",
+                    "views",
+                    "uses",
+                ]
+            ]
+            .describe()
+            .round(2)
+            .to_dict()
+        ),
+    }
 
-print(df.shape)
-# Output: the dataset contains 20,000 rows and 20 original columns.
+    return summary
 
-print(df.columns)
 
-print(df.info())
+if __name__ == "__main__":
+    dataset = load_raw_dataset()
+    eda_summary = run_eda(dataset)
 
-print(df.isna().sum())
-# Output: no missing values are present.
+    print("Dataset shape:")
+    print(eda_summary["shape"])
 
-print(df.duplicated(subset=["title", "content"]).sum())
-# Output: 93 duplicated title-content pairs were found.
-# Since the dataset is provided as ready to use, duplicates are reported but not removed.
+    print("\nMissing values total:")
+    print(eda_summary["missing_values_total"])
 
-print(df["id"].duplicated().sum())
+    print("\nDuplicate counts:")
+    print(
+        {
+            "duplicate_id_count": eda_summary["duplicate_id_count"],
+            "duplicate_title_content_count": eda_summary[
+                "duplicate_title_content_count"
+            ],
+        }
+    )
 
-category_stats=pd.DataFrame({
-    "count": df["category"].value_counts(),
-    "percentage": df["category"].value_counts(normalize=True) * 100
-})
-printc(category_stats.head(10))
-# Output: the largest category is below 8%, so the dataset is not dominated by one single category.
+    print("\nTop categories:")
+    print(eda_summary["top_categories"])
 
-df["content_length"] = df["content"].astype(str).str.split().str.len()
+    print("\nTop languages:")
+    print(eda_summary["top_languages"])
 
-print(df["content_length"].describe())
-# Output: prompt content has an average length of about 55 words and a maximum of 272 words.
+    print("\nDifficulty distribution:")
+    print(eda_summary["difficulty_distribution"])
 
-print(df[["likes", "upvotes", "views", "uses"]].describe())
-# Output: engagement metadata has high variance.
-# These fields are kept as metadata and are not included in text_for_embedding.
+    print("\nContent length summary:")
+    print(eda_summary["content_length_summary"])
 
-print(df["language"].value_counts().head(10))
-#Output: the dataset is almost entirely in English
+    print("\nEngagement summary:")
+    print(eda_summary["engagement_summary"])
 
-print(df["target_model"].value_counts().head(10))
-
-difficulty_stats=pd.DataFrame({
-    "count": df["difficulty"].value_counts(),
-    "percentage": df["difficulty"].value_counts(normalize=True) * 100
-})
-print(difficulty_stats.head(10))
-# Output: intermediate and beginner prompts are the most frequent difficulty levels.
 
 # Final considerations:
-# The dataset is ready to use: no missing values were found and prompt ids are unique.
-# A small number of duplicated title-content pairs was found, but they are reported and not removed.
-# The dataset covers many categories, with no single category dominating the collection.
-# Engagement fields such as likes, upvotes, views, and uses are kept as metadata.
-# The text_for_embedding field should therefore focus on semantic fields:
-# title, category, subcategory, tags, and content.
+# The EDA intentionally reports issues without modifying the dataset.
+# The summary is compact enough for repeated debugging while still capturing
+# the checks that matter before preprocessing and retrieval.

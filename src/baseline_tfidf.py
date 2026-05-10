@@ -1,15 +1,12 @@
-# baseline_tfidf.py
+'''
+baseline_tfidf.py
 
-# Purpose:
-# Implement a lexical retrieval baseline using TF-IDF and cosine similarity
-# so the semantic pipeline can be compared against a simpler method.
+This file implements the TF-IDF baseline used as a lexical retrieval
+method in the project. It reads the processed dataset, computes cosine
+similarity between the query and the prompt texts, and returns ranked results.
 
-# Behavior:
-# The module loads the processed dataset, builds a TF-IDF representation
-# of text_for_embedding, transforms the user query, and ranks prompts by cosine similarity.
+'''
 
-# Output:
-# Ranked list of dictionaries containing result metadata and similarity_score.
 
 from __future__ import annotations
 
@@ -52,6 +49,18 @@ def _pythonify(value: object) -> object:
     return value
 
 
+# Purpose:
+# Build the TF-IDF representation of the processed prompt texts so the
+# baseline can compare user queries against all prompts.
+#
+# Behavior:
+# The function loads the processed dataset, initializes the TF-IDF vectorizer,
+# and transforms the text_for_embedding column into a sparse TF-IDF matrix.
+#
+# Output:
+# A tuple containing the processed DataFrame, the fitted TF-IDF vectorizer,
+# and the TF-IDF matrix of all prompts.
+
 @lru_cache(maxsize=1)
 def _build_tfidf_index(processed_path: str) -> tuple[pd.DataFrame, TfidfVectorizer, object]:
     df = _load_processed_dataset(processed_path)
@@ -61,6 +70,19 @@ def _build_tfidf_index(processed_path: str) -> tuple[pd.DataFrame, TfidfVectoriz
 
     return df, vectorizer, tfidf_matrix
 
+
+# Purpose:
+# Run the TF-IDF baseline search by comparing the input query with the
+# processed prompt texts and ranking the most relevant matches.
+#
+# Behavior:
+# The function transforms the query with the fitted TF-IDF vectorizer,
+# computes cosine similarity against all prompt vectors, sorts the prompts
+# by similarity score, and keeps the top_k best results.
+#
+# Output:
+# A list of dictionaries containing the selected prompt metadata and the
+# corresponding similarity_score for each retrieved result.
 
 def baseline_search(
     query: str,
