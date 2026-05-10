@@ -26,9 +26,11 @@ print(df.duplicated(subset=["title", "content"]).sum())
 
 print(df["id"].duplicated().sum())
 
-print(df["category"].value_counts().head(10))
-
-print((df["category"].value_counts(normalize=True) * 100).head(10))
+category_stats=pd.DataFrame({
+    "count": df["category"].value_counts(),
+    "percentage": df["category"].value_counts(normalize=True) * 100
+})
+printc(category_stats.head(10))
 # Output: the largest category is below 8%, so the dataset is not dominated by one single category.
 
 df["content_length"] = df["content"].astype(str).str.split().str.len()
@@ -45,9 +47,11 @@ print(df["language"].value_counts().head(10))
 
 print(df["target_model"].value_counts().head(10))
 
-print(df["difficulty"].value_counts())
-
-print(df["difficulty"].value_counts(normalize=True) * 100)
+difficulty_stats=pd.DataFrame({
+    "count": df["difficulty"].value_counts(),
+    "percentage": df["difficulty"].value_counts(normalize=True) * 100
+})
+print(difficulty_stats.head(10))
 # Output: intermediate and beginner prompts are the most frequent difficulty levels.
 
 # Final considerations:
