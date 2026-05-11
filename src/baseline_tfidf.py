@@ -7,9 +7,6 @@ similarity between the query and the prompt texts, and returns ranked results.
 
 '''
 
-
-from __future__ import annotations
-
 from functools import lru_cache
 from pathlib import Path
 

@@ -8,8 +8,6 @@ later be stored in the vector database and used for semantic retrieval.
 
 '''
 
-from __future__ import annotations
-
 from functools import lru_cache
 
 import numpy as np

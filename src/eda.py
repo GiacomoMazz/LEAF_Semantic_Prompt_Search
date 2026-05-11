@@ -8,8 +8,6 @@ the following preprocessing and retrieval steps.
 
 '''
 
-from __future__ import annotations
-
 import pandas as pd
 
 from load_data import load_raw_dataset

@@ -8,8 +8,6 @@ their metadata and similarity scores.
 
 '''
 
-from __future__ import annotations
-
 from time import perf_counter
 
 from embeddings import generate_embeddings
