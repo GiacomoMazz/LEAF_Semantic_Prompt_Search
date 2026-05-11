@@ -8,15 +8,15 @@ and preprocessing.
 
 '''
 
-from __future__ import annotations
-
 from pathlib import Path
 
 import pandas as pd
 
+# refactor - i changed name to project root which is the location of the entire project file
+# i also pulled raw data from a subfolder called data instead as we will not store the raw data in src
 
-BASE_DIR = Path(__file__).resolve().parent
-RAW_DATA_PATH = BASE_DIR / "dataset.json"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+RAW_DATA_PATH = PROJECT_ROOT / "data" / "dataset.json"
 
 REQUIRED_COLUMNS = {
     "id",

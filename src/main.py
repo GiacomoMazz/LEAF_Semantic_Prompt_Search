@@ -1,27 +1,32 @@
-# main.py
-#
-# Purpose:
-# Provide a simple command-line comparison between the TF-IDF baseline
-# and the semantic retrieval pipeline for the same query.
-#
-# Behavior:
-# The script ensures the processed dataset and vector store exist, then
-# runs the same query through baseline_search(...) and retrieve(...).
-# The two result lists are printed in separate sections for manual review.
-#
-# Output:
-# Console comparison of TF-IDF baseline results and semantic retrieval
-# results for the selected query.
+
+# refactor - note for all files:
+# i removed from __future__ import annotations because it is not necessary
+# already built into our python versions for the kind of type hints we do
+
+'''
+main.py
+
+Purpose:
+Provide a simple command-line comparison between the TF-IDF baseline
+and the semantic retrieval pipeline for the same query.
+
+Behavior:
+The script ensures the processed dataset and vector store exist, then
+runs the same query through baseline_search(...) and retrieve(...).
+The two result lists are printed in separate sections for manual review.
+
+Output:
+Console comparison of TF-IDF baseline results and semantic retrieval
+results for the selected query.
+'''
 
 from __future__ import annotations
-
 import sys
 
 from baseline_tfidf import baseline_search
 from preprocessing import PROCESSED_DATA_PATH, build_processed_dataset
 from retrieval import retrieve
 from vector_store import ensure_vector_store
-
 
 DEFAULT_QUERY = "Write a speech to have a salary raise"
 
@@ -69,7 +74,9 @@ if __name__ == "__main__":
     main()
 
 
-# Final considerations:
-# This entrypoint is intentionally simple and is meant for manual validation.
-# It compares lexical retrieval and semantic retrieval without taking on
-# later-stage responsibilities such as reranking or evaluation metrics.
+'''
+Final considerations:
+This entrypoint is intentionally simple and is meant for manual validation.
+It compares lexical retrieval and semantic retrieval without taking on
+later-stage responsibilities such as reranking or evaluation metrics.
+'''
