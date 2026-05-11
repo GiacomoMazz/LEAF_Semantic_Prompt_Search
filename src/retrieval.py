@@ -108,7 +108,7 @@ def measure_retrieval_latency(queries: list[str], top_k: int = 50) -> dict:
 
 if __name__ == "__main__":
     sample_results = retrieve(
-        "Write a speech to have a salary raise",
+        "Write a speech to ask for a salary raise",
         top_k=5,
     )
 
