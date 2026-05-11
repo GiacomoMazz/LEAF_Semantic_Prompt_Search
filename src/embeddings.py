@@ -55,7 +55,7 @@ def generate_embeddings(texts) -> np.ndarray:
 if __name__ == "__main__":
     sample_embeddings = generate_embeddings(
         [
-            "Write a speech to have a salary raise",
+            "Write a speech to ask for a salary raise",
             "Write a marketing email for a product launch",
         ]
     )
