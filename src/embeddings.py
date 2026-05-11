@@ -38,6 +38,7 @@ text to string format, and encodes the texts into normalized embedding vectors.
 Output:
 A NumPy array containing one embedding vector for each input text.
 '''
+
 # refactor - added model_name to parameters to allow for different embedding techniques
 
 def generate_embeddings(texts, model_name: str = DEFAULT_EMBEDDING_MODEL) -> np.ndarray:

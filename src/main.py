@@ -51,18 +51,29 @@ def _print_results(title: str, results: list[dict], top_k: int) -> None:
         )
         print(f"   content preview: {result['content'][:160]}")
 
+# refactor - added debug printlines throughout the project can probably be removed at the end
 
 def main() -> None:
     query = " ".join(sys.argv[1:]).strip() or DEFAULT_QUERY
     top_k = 5
+    
+    print("starting main")
 
     if not PROCESSED_DATA_PATH.exists():
+        print("building processed dataset...")
         build_processed_dataset()
-
+        print("processed dataset built.")
+    print("ensuring vector store...")
     ensure_vector_store()
+    print("vector store ready.")
 
+    print("running tf-idf baseline...")
     baseline_results = baseline_search(query, top_k=top_k)
+    print("tf-id done.")
+
+    print("rinnung semantic retrieval...")
     semantic_results = retrieve(query, top_k=top_k)
+    print("semantic retrieval done.")
 
     print(f"Query: {query}\n")
     _print_results("TF-IDF Baseline", baseline_results, top_k=top_k)

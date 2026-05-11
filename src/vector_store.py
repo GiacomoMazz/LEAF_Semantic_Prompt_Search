@@ -74,19 +74,27 @@ def _build_metadata_records(df: pd.DataFrame) -> list[dict]:
 
     return records
 
+# refactor - you need to explain what is being input into the function.
+# I should be able to read the descritpion and know how to use it. 
+# For example you need to say that i have the option to set reset_collection=True to
+# delete current client and restart. When you have a non-helper function like this
+# you need to explain how to use it. What each parameter you can pass is and does.
 
-# Purpose:
-# Store prompt embeddings and metadata inside the ChromaDB collection
-# so they can be used later for semantic retrieval.
-#
-# Behavior:
-# The function creates or reuses the target collection, optionally resets it,
-# converts ids, embeddings, metadata, and documents into the format expected
-# by ChromaDB, and uploads the data in batches.
-#
-# Output:
-# No direct return value. The function writes the embeddings and metadata
-# into the persistent ChromaDB collection on disk.
+'''
+Purpose:
+Store prompt embeddings and metadata inside the ChromaDB collection
+so they can be used later for semantic retrieval.
+
+Behavior:
+The function creates or reuses the target collection, optionally resets it,
+converts ids, embeddings, metadata, and documents into the format expected
+by ChromaDB, and uploads the data in batches.
+
+Output:
+No direct return value. The function writes the embeddings and metadata
+into the persistent ChromaDB collection on disk.
+'''
+
 
 def build_vector_store(
     ids,
@@ -125,7 +133,10 @@ def build_vector_store(
             documents=document_list[start:end],
         )
 
+# refactor - same thing as above with the passed parameters.
+# The comment above the function should tell me how to use it in addition to what it does.
 
+'''
 # Purpose:
 # Build the vector store starting from the processed dataset by generating
 # embeddings and pairing them with the corresponding prompt metadata.
@@ -137,55 +148,95 @@ def build_vector_store(
 #
 # Output:
 # The number of prompts inserted into the vector store.
+'''
+
+# refactor - optimized to store embeddings in batches instead of doing them all together
+# this should make it easier to run on a laptop removing the need for external cpu boosting
 
 def build_vector_store_from_processed_dataset(
     processed_path: str | Path = PROCESSED_DATA_PATH,
     collection_name: str = DEFAULT_COLLECTION_NAME,
     reset_collection: bool = True,
 ) -> int:
+    
     df = pd.read_csv(processed_path)
-    embeddings = generate_embeddings(df["text_for_embedding"].fillna(""))
-    metadata = _build_metadata_records(df)
 
-    build_vector_store(
-        ids=df["id"].astype(str).tolist(),
-        embeddings=embeddings,
-        metadata=metadata,
-        collection_name=collection_name,
-        documents=df["content"].astype(str).tolist(),
-        reset_collection=reset_collection,
-    )
+    client = _get_persistent_client()
 
-    return len(df)
+    if reset_collection:
+        try:
+            client.delete_collection(collection_name)
+        except Exception:
+            pass
 
+    collection = _get_or_create_collection(collection_name)
 
-# Purpose:
-# Check whether the ChromaDB collection is already complete and rebuild it
-# if the stored number of prompts does not match the processed dataset.
-#
-# Behavior:
-# The function compares the number of items currently stored in the collection
-# with the number of prompts in the processed dataset. If the collection is
-# missing items or is empty, it rebuilds the vector store from scratch.
-#
-# Output:
-# The final number of prompts available in the vector store.
+    batch_size = 250
+    total_rows = len(df)
+
+    print(f"building vector store for {total_rows} rows...", flush=True)
+
+    for start in range(0, total_rows, batch_size):
+        end = min(start + batch_size, total_rows)
+        batch = df.iloc[start:end]
+
+        print(f"processing rows {start} to {end} of {total_rows}", flush = True)
+
+        embeddings = generate_embeddings(batch["text_for_embedding"].fillna("").tolist())
+
+        metadata = _build_metadata_records(batch)
+
+        collection.upsert(
+            ids = batch["id"].astype(str).tolist(),
+            embeddings = embeddings.tolist(),
+            metadatas = metadata,
+            documents = batch["content"].fillna("").astype(str).tolist()
+        )
+
+        print(f"finished rows {start} to {end}", flush = True)
+
+    return total_rows
+
+'''
+Purpose:
+Check whether the ChromaDB collection is already complete and rebuild it
+if the stored number of prompts does not match the processed dataset.
+
+Behavior:
+The function compares the number of items currently stored in the collection
+with the number of prompts in the processed dataset. If the collection is
+missing items or is empty, it rebuilds the vector store from scratch.
+
+Output:
+The final number of prompts available in the vector store.
+'''
 
 def ensure_vector_store(
     processed_path: str | Path = PROCESSED_DATA_PATH,
     collection_name: str = DEFAULT_COLLECTION_NAME,
 ) -> int:
+
+    print("ensure_vector_store: getting collection...", flush=True)
     collection = _get_or_create_collection(collection_name)
+
+    print("ensure_vector_store: counting Chroma records...", flush=True)
     count = collection.count()
+    print(f"ensure_vector_store: Chroma count = {count}", flush=True)
+
+    print("ensure_vector_store: reading processed CSV count...", flush=True)
     expected_count = len(pd.read_csv(processed_path, usecols=["id"]))
+    print(f"ensure_vector_store: expected count = {expected_count}", flush=True)
 
     if count != expected_count:
+        print("ensure_vector_store: count mismatch, rebuilding vector store...", flush=True)
         count = build_vector_store_from_processed_dataset(
             processed_path=processed_path,
             collection_name=collection_name,
             reset_collection=True,
         )
-
+    else:
+        print("ensure_vector_search: vectore store already complete, skipping rebuild.", flush=True)
+    print("ensure_vector_store: done.", flush=True)
     return count
 
 
@@ -193,8 +244,9 @@ if __name__ == "__main__":
     total_items = ensure_vector_store()
     print(total_items)
 
-
-# Final considerations:
-# This module is responsible only for persistent vector storage.
-# Ranking interpretation and query-time similarity handling are left to the
-# retrieval layer.
+'''
+Final considerations:
+This module is responsible only for persistent vector storage.
+Ranking interpretation and query-time similarity handling are left to the
+retrieval layer.
+'''
