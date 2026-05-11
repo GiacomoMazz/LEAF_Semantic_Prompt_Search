@@ -23,7 +23,7 @@ from retrieval import retrieve
 from vector_store import ensure_vector_store
 
 
-DEFAULT_QUERY = "Write a speech to have a salary raise"
+DEFAULT_QUERY = "Write a speech to ask for a salary raise"
 
 
 def _print_results(title: str, results: list[dict], top_k: int) -> None:
