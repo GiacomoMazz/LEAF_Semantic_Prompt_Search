@@ -1,17 +1,12 @@
-# vector_store.py
-#
-# Purpose:
-# Build and populate the persistent ChromaDB collection used for semantic
-# retrieval over prompt embeddings.
-#
-# Behavior:
-# The module creates or opens a Chroma collection configured for cosine
-# distance, sanitizes metadata into Chroma-compatible Python values, and
-# upserts prompt vectors in batches.
-#
-# Output:
-# Persistent ChromaDB collection stored on disk and ready for query-time
-# retrieval.
+'''
+vector_store.py
+
+This file builds and manages the ChromaDB vector store used in the
+semantic search pipeline. It prepares the prompt metadata, stores the
+embeddings together with the corresponding prompt information, and ensures
+that the vector collection is available for retrieval.
+
+'''
 
 from __future__ import annotations
 
@@ -82,6 +77,19 @@ def _build_metadata_records(df: pd.DataFrame) -> list[dict]:
     return records
 
 
+# Purpose:
+# Store prompt embeddings and metadata inside the ChromaDB collection
+# so they can be used later for semantic retrieval.
+#
+# Behavior:
+# The function creates or reuses the target collection, optionally resets it,
+# converts ids, embeddings, metadata, and documents into the format expected
+# by ChromaDB, and uploads the data in batches.
+#
+# Output:
+# No direct return value. The function writes the embeddings and metadata
+# into the persistent ChromaDB collection on disk.
+
 def build_vector_store(
     ids,
     embeddings,
@@ -120,6 +128,18 @@ def build_vector_store(
         )
 
 
+# Purpose:
+# Build the vector store starting from the processed dataset by generating
+# embeddings and pairing them with the corresponding prompt metadata.
+#
+# Behavior:
+# The function reads the processed CSV file, generates one embedding for each
+# text_for_embedding value, prepares the metadata records, and sends everything
+# to the ChromaDB collection through build_vector_store(...).
+#
+# Output:
+# The number of prompts inserted into the vector store.
+
 def build_vector_store_from_processed_dataset(
     processed_path: str | Path = PROCESSED_DATA_PATH,
     collection_name: str = DEFAULT_COLLECTION_NAME,
@@ -140,6 +160,18 @@ def build_vector_store_from_processed_dataset(
 
     return len(df)
 
+
+# Purpose:
+# Check whether the ChromaDB collection is already complete and rebuild it
+# if the stored number of prompts does not match the processed dataset.
+#
+# Behavior:
+# The function compares the number of items currently stored in the collection
+# with the number of prompts in the processed dataset. If the collection is
+# missing items or is empty, it rebuilds the vector store from scratch.
+#
+# Output:
+# The final number of prompts available in the vector store.
 
 def ensure_vector_store(
     processed_path: str | Path = PROCESSED_DATA_PATH,

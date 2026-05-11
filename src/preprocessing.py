@@ -1,17 +1,13 @@
-# preprocessing.py
-#
-# Purpose:
-# Create the text_for_embedding field required by both the TF-IDF baseline
-# and the semantic retrieval pipeline, then save the processed dataset.
-#
-# Behavior:
-# The module exposes build_text_for_embedding(df) and
-# save_processed_dataset(df, path). It preserves the original dataset fields
-# and adds a single semantic text column built from title, category,
-# subcategory, tags, and content.
-#
-# Output:
-# Processed pandas DataFrame and processed_prompts.csv saved to disk.
+'''
+preprocessing.py
+
+This file prepares the dataset for retrieval by creating the
+text_for_embedding field and saving the processed dataset to disk.
+It preserves the original prompt information and adds the semantic
+text column that will be used by both the TF-IDF baseline and the
+semantic retrieval pipeline.
+
+'''
 
 from __future__ import annotations
 
@@ -23,7 +19,7 @@ from load_data import RAW_DATA_PATH, load_raw_dataset
 
 
 BASE_DIR = Path(__file__).resolve().parent
-PROCESSED_DATA_PATH = BASE_DIR.parent / "data" / "processed" / "processed_prompts.csv"
+PROCESSED_DATA_PATH = BASE_DIR / "data" / "processed" / "processed_prompts.csv"
 
 
 def _format_tags(value: object) -> str:
@@ -34,11 +30,20 @@ def _format_tags(value: object) -> str:
     return str(value)
 
 
+# Purpose:
+# Create the semantic text field that represents each prompt in the
+# retrieval pipeline.
+#
+# Behavior:
+# The function copies the input DataFrame and combines title, category,
+# subcategory, tags, and content into a single text_for_embedding column.
+#
+# Output:
+# A processed pandas DataFrame with the additional text_for_embedding field.
+
 def build_text_for_embedding(df: pd.DataFrame) -> pd.DataFrame:
     df_processed = df.copy()
 
-    # The combined field focuses on semantic prompt meaning rather than
-    # engagement metadata, which will remain available separately.
     df_processed["text_for_embedding"] = (
         df_processed["title"].astype(str)
         + ". "
@@ -54,6 +59,17 @@ def build_text_for_embedding(df: pd.DataFrame) -> pd.DataFrame:
     return df_processed
 
 
+# Purpose:
+# Save the processed dataset to disk so it can be reused by the baseline,
+# embedding, and retrieval steps.
+#
+# Behavior:
+# The function creates the output folder if needed and writes the processed
+# DataFrame to a CSV file.
+#
+# Output:
+# No direct return value. The processed dataset is saved as a CSV file.
+
 def save_processed_dataset(
     df: pd.DataFrame, path: str | Path = PROCESSED_DATA_PATH
 ) -> None:
@@ -61,6 +77,17 @@ def save_processed_dataset(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
 
+
+# Purpose:
+# Build the full processed dataset starting from the raw data and save it
+# to disk in a single step.
+#
+# Behavior:
+# The function loads the raw dataset, creates the text_for_embedding field,
+# saves the processed dataset, and returns the processed DataFrame.
+#
+# Output:
+# A processed pandas DataFrame ready to be used in the retrieval pipeline.
 
 def build_processed_dataset(
     raw_path: str | Path = RAW_DATA_PATH,

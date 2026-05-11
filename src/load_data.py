@@ -1,16 +1,12 @@
-# load_data.py
-#
-# Purpose:
-# Load the raw LEAF PromptKaban dataset from disk and validate the fields
-# expected by the semantic search pipeline.
-#
-# Behavior:
-# The module exposes a single public function, load_raw_dataset(path),
-# that reads the JSON dataset and returns it as a pandas DataFrame.
-# The function also checks that the required columns are present.
-#
-# Output:
-# pandas DataFrame containing the raw dataset rows and columns.
+'''
+load_data.py
+
+This file loads the raw LEAF PromptKaban dataset from disk and checks
+that the required columns are present. It provides the raw DataFrame
+that will be used by the following steps of the project, such as EDA
+and preprocessing.
+
+'''
 
 from __future__ import annotations
 
@@ -20,7 +16,7 @@ import pandas as pd
 
 
 BASE_DIR = Path(__file__).resolve().parent
-RAW_DATA_PATH = BASE_DIR.parent / "data" / "dataset.json"
+RAW_DATA_PATH = BASE_DIR / "dataset.json"
 
 REQUIRED_COLUMNS = {
     "id",
@@ -45,6 +41,17 @@ REQUIRED_COLUMNS = {
     "target_model",
 }
 
+
+# Purpose:
+# Load the raw dataset from disk and verify that all the required fields
+# for the project are available.
+#
+# Behavior:
+# The function reads the JSON dataset file, checks whether the expected
+# columns are present, and raises an error if any required column is missing.
+#
+# Output:
+# A pandas DataFrame containing the raw prompt dataset.
 
 def load_raw_dataset(path: str | Path = RAW_DATA_PATH) -> pd.DataFrame:
     dataset_path = Path(path)

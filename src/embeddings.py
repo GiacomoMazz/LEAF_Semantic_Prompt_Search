@@ -1,15 +1,12 @@
-# embeddings.py
-#
-# Purpose:
-# Generate dense sentence embeddings for the processed prompt texts used by
-# the semantic retrieval pipeline.
-#
-# Behavior:
-# The module loads a sentence-transformers model once, then encodes a list
-# of texts into normalized embedding vectors suitable for cosine retrieval.
-#
-# Output:
-# NumPy array containing one embedding vector for each input text.
+'''
+embeddings.py
+
+This file generates dense vector representations of the prompt texts
+using a sentence-transformers model. It loads the embedding model,
+encodes the input texts, and returns normalized embeddings that will
+later be stored in the vector database and used for semantic retrieval.
+
+'''
 
 from __future__ import annotations
 
@@ -28,6 +25,17 @@ def _load_embedding_model(
 ) -> SentenceTransformer:
     return SentenceTransformer(model_name)
 
+
+# Purpose:
+# Convert the input texts into dense semantic embeddings that can be
+# compared through cosine similarity in the retrieval pipeline.
+#
+# Behavior:
+# The function loads the sentence-transformers model, converts each input
+# text to string format, and encodes the texts into normalized embedding vectors.
+#
+# Output:
+# A NumPy array containing one embedding vector for each input text.
 
 def generate_embeddings(texts) -> np.ndarray:
     model = _load_embedding_model()

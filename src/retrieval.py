@@ -1,18 +1,12 @@
-# retrieval.py
-#
-# Purpose:
-# Implement semantic retrieval over the ChromaDB vector store using query
-# embeddings and cosine-style similarity scoring.
-#
-# Behavior:
-# The module encodes the user query with the same embedding model used for
-# the prompts, queries the Chroma collection, converts returned cosine
-# distance values into similarity_score, and returns ranked results.
-#
-# Output:
-# Ranked list of dictionaries containing retrieved prompt metadata and
-# similarity_score. The module also exposes a helper to measure retrieval
-# latency over a set of queries.
+'''
+retrieval.py
+
+This file performs semantic retrieval over the ChromaDB vector store.
+It converts the user query into an embedding, compares it with the stored
+prompt embeddings, and returns the most relevant prompts together with
+their metadata and similarity scores.
+
+'''
 
 from __future__ import annotations
 
@@ -21,6 +15,19 @@ from time import perf_counter
 from embeddings import generate_embeddings
 from vector_store import DEFAULT_COLLECTION_NAME, _get_or_create_collection
 
+
+# Purpose:
+# Retrieve the most relevant prompts for a user query by comparing the
+# query embedding with the prompt embeddings stored in the vector database.
+#
+# Behavior:
+# The function encodes the query with the same embedding model used for the
+# prompts, searches the ChromaDB collection, converts the returned cosine
+# distance into a similarity_score, and builds a ranked list of prompt results.
+#
+# Output:
+# A list of dictionaries containing the retrieved prompts, their metadata,
+# and the corresponding similarity_score values.
 
 def retrieve(query: str, top_k: int = 50) -> list[dict]:
     if top_k <= 0:
@@ -69,6 +76,17 @@ def retrieve(query: str, top_k: int = 50) -> list[dict]:
 
     return results
 
+
+# Purpose:
+# Measure how long semantic retrieval takes over a set of input queries.
+#
+# Behavior:
+# The function runs retrieve(...) for each query in the input list, records
+# the execution time of each retrieval, and summarizes the latency values.
+#
+# Output:
+# A dictionary containing the number of tested queries together with the
+# average, minimum, and maximum retrieval latency.
 
 def measure_retrieval_latency(queries: list[str], top_k: int = 50) -> dict:
     if not queries:

@@ -1,17 +1,12 @@
-# eda.py
-#
-# Purpose:
-# Perform lightweight exploratory data analysis on the LEAF PromptKaban
-# dataset and confirm that it is ready for the semantic search pipeline.
-#
-# Behavior:
-# The module exposes run_eda(df), which computes dataset shape, field checks,
-# duplicate counts, and compact summaries of the main metadata distributions.
-# When the file is executed directly, it prints the EDA summary.
-#
-# Output:
-# Dictionary containing the computed EDA statistics. When run directly,
-# the summary is also printed to the console.
+'''
+eda.py
+
+This file performs the exploratory data analysis of the raw dataset.
+It checks dataset quality, duplicates, missing values, and the main
+metadata distributions in order to confirm that the data is ready for
+the following preprocessing and retrieval steps.
+
+'''
 
 from __future__ import annotations
 
@@ -19,6 +14,18 @@ import pandas as pd
 
 from load_data import load_raw_dataset
 
+
+# Purpose:
+# Analyze the raw dataset and summarize the main statistics needed to
+# understand its structure and quality.
+#
+# Behavior:
+# The function computes dataset size, duplicate counts, missing values,
+# category and language distributions, prompt length statistics, and
+# descriptive summaries of the main metadata fields.
+#
+# Output:
+# A dictionary containing the EDA summary results.
 
 def run_eda(df: pd.DataFrame) -> dict:
     content_length = df["content"].astype(str).str.split().str.len()
@@ -29,9 +36,13 @@ def run_eda(df: pd.DataFrame) -> dict:
         "missing_values_total": int(df.isna().sum().sum()),
         "missing_values_by_column": df.isna().sum().to_dict(),
         "duplicate_id_count": int(df["id"].duplicated().sum()),
-        "duplicate_title_content_count": int(df.duplicated(subset=["title", "content"]).sum()),
+        "duplicate_title_content_count": int(
+            df.duplicated(subset=["title", "content"]).sum()
+        ),
         "top_categories": df["category"].value_counts().head(10).to_dict(),
-        "top_category_percentages": ((df["category"].value_counts(normalize=True) * 100).head(10).round(2)).to_dict(),
+        "top_category_percentages": (
+            (df["category"].value_counts(normalize=True) * 100).head(10).round(2)
+        ).to_dict(),
         "top_languages": df["language"].value_counts().head(10).to_dict(),
         "difficulty_distribution": df["difficulty"].value_counts().to_dict(),
         "target_models": df["target_model"].value_counts().head(10).to_dict(),
@@ -91,10 +102,8 @@ if __name__ == "__main__":
     print("\nEngagement summary:")
     print(eda_summary["engagement_summary"])
 
+
 # Final considerations:
-# The dataset is ready to use: no missing values were found and prompt ids are unique.
-# A small number of duplicated title-content pairs was found, but they are reported and not removed.
-# The dataset covers many categories, with no single category dominating the collection.
-# Engagement fields such as likes, upvotes, views, and uses are kept as metadata.
-# The text_for_embedding field should therefore focus on semantic fields:
-# title, category, subcategory, tags, and content.
+# The EDA intentionally reports issues without modifying the dataset.
+# The summary is compact enough for repeated debugging while still capturing
+# the checks that matter before preprocessing and retrieval.
