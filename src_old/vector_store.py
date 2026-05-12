@@ -14,7 +14,7 @@ from pathlib import Path
 import chromadb
 import pandas as pd
 
-from embeddings import generate_embeddings
+from src_old.embeddings import generate_embeddings
 from preprocessing import PROCESSED_DATA_PATH
 
 

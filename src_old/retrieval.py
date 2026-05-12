@@ -10,7 +10,7 @@ their metadata and similarity scores.
 
 from time import perf_counter
 
-from embeddings import generate_embeddings
+from src_old.embeddings import generate_embeddings
 from vector_store import DEFAULT_COLLECTION_NAME, _get_or_create_collection
 
 

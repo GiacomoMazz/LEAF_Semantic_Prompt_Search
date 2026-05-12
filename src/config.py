@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 
 
 
-# Paths
+## Paths
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -20,16 +20,44 @@ DATA_DIR = PROJECT_ROOT / "data"
 RAW_DATA_PATH = DATA_DIR / "dataset.json"
 VECTOR_DB_DIR = DATA_DIR / "chroma"
 
-# Text construction
+## Text construction
+
+# template for build_search_text
 
 TEXT_TEMPLATE = """Title: {title}
 Category: {category}
 Subcategory: {subcategory}
 Tags: {tags}
-Prompt: {content}
+Difficulty: {difficulty}
+
+Prompt: 
+{content}
 """
 
-# Embedding models
+# metadata fields stored for each vector
+
+METADATA_FIELDS = [
+    "title",
+    "category",
+    "subcategory",
+    "tags",
+    "difficulty",
+    "language",
+    "target_model",
+    "has_placeholders",
+    "placeholders",
+    "author_reputation",
+    "version",
+    "fork_count",
+    "likes",
+    "upvotes",
+    "downvotes",
+    "views",
+    "uses",
+    "created_at"
+]
+
+## Embedding models
 
 EMBEDDING_MODELS = {
     "minilm": "sentence-transformers/all-MiniLM-L6-v2",
