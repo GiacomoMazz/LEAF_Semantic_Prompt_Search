@@ -54,5 +54,27 @@ def preprocess_records(records: list[dict]) -> list[dict]:
 
         if record.get("id") is not None and record.get("content"):
             result.append(preprocess_record(record))
-            
+
     return result
+
+
+
+if __name__ == "__main__":
+    from data_loader import load_raw_data
+
+    raw_records = load_raw_data()
+
+    processed_records = preprocess_records(raw_records)
+
+    print(f"Loaded records: {len(raw_records)}")
+
+    print(f"Processed records: {len(processed_records)}")
+
+    print("\nFirst processed text:\n")
+
+    print(processed_records[0]["text"])
+
+    print("\nFirst processed metadata:\n")
+
+    print(processed_records[0]["metadata"])
+

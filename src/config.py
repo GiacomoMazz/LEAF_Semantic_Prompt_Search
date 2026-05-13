@@ -18,7 +18,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 DATA_DIR = PROJECT_ROOT / "data"
 RAW_DATA_PATH = DATA_DIR / "dataset.json"
-VECTOR_DB_DIR = DATA_DIR / "chroma"
+VECTOR_DB_DIR = PROJECT_ROOT / "chroma"
 
 ## Text construction
 
@@ -57,7 +57,7 @@ METADATA_FIELDS = [
     "created_at"
 ]
 
-## Embedding models
+## Embedding settings
 
 EMBEDDING_MODELS = {
     "minilm": "sentence-transformers/all-MiniLM-L6-v2",
@@ -65,14 +65,29 @@ EMBEDDING_MODELS = {
 }
 
 DEFAULT_EMBEDDING_MODEL_KEY = "minilm"
+DEFAULT_EMBEDDING_BATCH_SIZE = 32
+DEFAULT_NORMALIZE_EMBEDDINGS = True
 
-# Vector store / retrieval
+# Vector store and retrieval modes
+
+RETRIEVAL_MODES = {
+    "semantic",
+    "keyword",
+    "hybrid"
+}
+
+DEFAULT_RETRIEVAL_MODE = "semantic"
 
 VECTOR_STORE = "chroma"
 DISTANCE_METRIC = "cosine"
 
-RETRIEVAL_TOP_K = 10
+KEYWORD_TOP_K = 10
+SEMANTIC_TOP_K = 10
+MERGED_TOP_K = 20
 FINAL_TOP_K = 5
+
+KEYWORD_WEIGHT = 0.3
+SEMANTIC_WEIGHT = 0.7
 
 
 def make_collection_name(model_key: str) -> str:
@@ -93,6 +108,8 @@ DEFAULT_RERANKER_MODEL_KEY = "msmarco_minilm"
 class SearchConfig:
     embedding_model_key: str = DEFAULT_EMBEDDING_MODEL_KEY
     embedding_model_name: str = EMBEDDING_MODELS[DEFAULT_EMBEDDING_MODEL_KEY]
+    embedding_batch_size: int = DEFAULT_EMBEDDING_BATCH_SIZE
+    normalize_embeddings: bool = DEFAULT_NORMALIZE_EMBEDDINGS,
 
     # not completely necessary for strings but safest
     collection_name: str = field(
@@ -103,8 +120,15 @@ class SearchConfig:
     vector_db_dir: Path = VECTOR_DB_DIR
     distance_metric: str = DISTANCE_METRIC
 
-    retrieval_top_k: int = RETRIEVAL_TOP_K
+    retrieval_mode: str = DEFAULT_RETRIEVAL_MODE
+
+    keyword_top_k: int = KEYWORD_TOP_K
+    semantic_top_k: int = SEMANTIC_TOP_K
+    merged_top_k: int = MERGED_TOP_K
     final_top_k: int = FINAL_TOP_K
+
+    keyword_weight: int = KEYWORD_WEIGHT
+    semantic_weight: int = SEMANTIC_WEIGHT
 
     use_reranker: bool = False
     reranker_model_key: str = DEFAULT_RERANKER_MODEL_KEY
@@ -115,8 +139,15 @@ class SearchConfig:
 
 def get_config(
     embedding_model_key: str = DEFAULT_EMBEDDING_MODEL_KEY,
-    retrieval_top_k: int = RETRIEVAL_TOP_K,
+    embedding_batch_size: int = DEFAULT_EMBEDDING_BATCH_SIZE,
+    normalize_embeddings: bool = DEFAULT_NORMALIZE_EMBEDDINGS,
+    retrieval_mode: str = DEFAULT_RETRIEVAL_MODE,
+    keyword_top_k: int = KEYWORD_TOP_K,
+    semantic_top_k: int = SEMANTIC_TOP_K,
+    merged_top_k: int = MERGED_TOP_K,
     final_top_k: int = FINAL_TOP_K,
+    keyword_weight: float = KEYWORD_WEIGHT,
+    semantic_weight: float = SEMANTIC_WEIGHT,
     use_reranker: bool = False,
     use_metadata_scoring: bool = False,
 ) -> SearchConfig:
@@ -126,13 +157,27 @@ def get_config(
     if embedding_model_key not in EMBEDDING_MODELS:
         valid = ", ".join(EMBEDDING_MODELS)
         raise ValueError(f"Unknown embedding model key '{embedding_model_key}'. Valid: {valid}")
+    
+    if retrieval_mode not in RETRIEVAL_MODES:
+        valid = ", ".join(RETRIEVAL_MODES)
+        raise ValueError(f"Unknown retrieval mode '{retrieval_mode}'. Valid: {valid}")
 
     return SearchConfig(
         embedding_model_key = embedding_model_key,
         embedding_model_name = EMBEDDING_MODELS[embedding_model_key],
         collection_name = make_collection_name(embedding_model_key),
-        retrieval_top_k = retrieval_top_k,
+        embedding_batch_size = embedding_batch_size,
+        normalize_embeddings = normalize_embeddings,
+        retrieval_mode = retrieval_mode,
+
+        keyword_top_k = keyword_top_k,
+        semantic_top_k = semantic_top_k,
+        merged_top_k = merged_top_k,
         final_top_k = final_top_k,
+
+        keyword_weight = keyword_weight,
+        semantic_weight = semantic_weight,
+
         use_reranker = use_reranker,
         use_metadata_scoring = use_metadata_scoring,
     )
