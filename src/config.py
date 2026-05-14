@@ -94,13 +94,28 @@ def make_collection_name(model_key: str) -> str:
     # Make collection names model-specific so indexes do not get mixed.
     return f"prompts_{model_key}"
 
-# Reranking
+## Reranking
 
 RERANKER_MODELS = {
     "msmarco_minilm": "cross-encoder/ms-marco-MiniLM-L-6-v2",
 }
 
 DEFAULT_RERANKER_MODEL_KEY = "msmarco_minilm"
+
+## metadata scoring
+
+DEFAULT_SEARCH_SCORE_WEIGHT = 0.85
+DEFAULT_METADATA_SCORE_WEIGHT = 0.15
+
+METADATA_SCORE_FIELDS = {
+    "upvotes": 0.30,
+    "likes": 0.22,
+    "uses": 0.22,
+    "fork_count": 0.10,
+    "author_reputation": 0.10,
+    "views": 0.06,
+    "downvotes": -0.10
+}
 
 # Runtime config
 
@@ -109,7 +124,9 @@ class SearchConfig:
     embedding_model_key: str = DEFAULT_EMBEDDING_MODEL_KEY
     embedding_model_name: str = EMBEDDING_MODELS[DEFAULT_EMBEDDING_MODEL_KEY]
     embedding_batch_size: int = DEFAULT_EMBEDDING_BATCH_SIZE
-    normalize_embeddings: bool = DEFAULT_NORMALIZE_EMBEDDINGS,
+    normalize_embeddings: bool = DEFAULT_NORMALIZE_EMBEDDINGS
+    search_score_weight: float = DEFAULT_SEARCH_SCORE_WEIGHT
+    metadata_score_weight: float = DEFAULT_METADATA_SCORE_WEIGHT
 
     # not completely necessary for strings but safest
     collection_name: str = field(
@@ -148,6 +165,8 @@ def get_config(
     final_top_k: int = FINAL_TOP_K,
     keyword_weight: float = KEYWORD_WEIGHT,
     semantic_weight: float = SEMANTIC_WEIGHT,
+    search_score_weight: float = DEFAULT_SEARCH_SCORE_WEIGHT,
+    metadata_score_weight: float = DEFAULT_METADATA_SCORE_WEIGHT,
     use_reranker: bool = False,
     use_metadata_scoring: bool = False,
 ) -> SearchConfig:
@@ -177,6 +196,9 @@ def get_config(
 
         keyword_weight = keyword_weight,
         semantic_weight = semantic_weight,
+
+        search_score_weight = search_score_weight,
+        metadata_score_weight = metadata_score_weight,
 
         use_reranker = use_reranker,
         use_metadata_scoring = use_metadata_scoring,
