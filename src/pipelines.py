@@ -5,6 +5,7 @@ from vectorstores import ChromaVectorStore
 from keyword_retriever import TfidfKeywordRetriever
 from retrievers import SearchRetriever
 from rerankers import CrossEncoderReranker
+from metadata_scoring import MetadataScorer
 
 class SearchPipeline:
     def __init__(self, config):
@@ -15,6 +16,7 @@ class SearchPipeline:
         self.keyword_retriever = None
         self.retriever = None
         self.reranker = None
+        self.metadata_scorer = None
 
         self._build_components()
     
@@ -49,11 +51,17 @@ class SearchPipeline:
         if self.config.use_reranker:
             self.reranker = CrossEncoderReranker(self.config)
         
+        if self.config.use_metadata_scoring:
+            self.metadata_scorer = MetadataScorer(self.config)
+        
     def search(self, query: str) -> list[dict]:
 
         candidates = self.retriever.search(query)
 
         if self.config.use_reranker:
             candidates = self.reranker.rerank(query, candidates)
+
+        if self.config.use_metadata_scoring:
+            candidates = self.metadata_scorer.score(candidates)
         
         return candidates[: self.config.final_top_k]

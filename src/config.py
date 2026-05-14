@@ -127,6 +127,10 @@ class SearchConfig:
     normalize_embeddings: bool = DEFAULT_NORMALIZE_EMBEDDINGS
     search_score_weight: float = DEFAULT_SEARCH_SCORE_WEIGHT
     metadata_score_weight: float = DEFAULT_METADATA_SCORE_WEIGHT
+    
+    metadata_score_fields: dict = field(
+        default_factory = lambda : METADATA_SCORE_FIELDS.copy()
+    )
 
     # not completely necessary for strings but safest
     collection_name: str = field(
@@ -144,8 +148,8 @@ class SearchConfig:
     merged_top_k: int = MERGED_TOP_K
     final_top_k: int = FINAL_TOP_K
 
-    keyword_weight: int = KEYWORD_WEIGHT
-    semantic_weight: int = SEMANTIC_WEIGHT
+    keyword_weight: float = KEYWORD_WEIGHT
+    semantic_weight: float = SEMANTIC_WEIGHT
 
     use_reranker: bool = False
     reranker_model_key: str = DEFAULT_RERANKER_MODEL_KEY
