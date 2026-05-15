@@ -54,7 +54,8 @@ METADATA_FIELDS = [
     "downvotes",
     "views",
     "uses",
-    "created_at"
+    "created_at",
+    "content"
 ]
 
 ## Embedding settings
@@ -98,6 +99,7 @@ def make_collection_name(model_key: str) -> str:
 
 RERANKER_MODELS = {
     "msmarco_minilm": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "msmarco_tinybert": "cross-encoder/ms-marco-TinyBERT-L-2-v2"
 }
 
 DEFAULT_RERANKER_MODEL_KEY = "msmarco_minilm"
@@ -172,6 +174,7 @@ def get_config(
     search_score_weight: float = DEFAULT_SEARCH_SCORE_WEIGHT,
     metadata_score_weight: float = DEFAULT_METADATA_SCORE_WEIGHT,
     use_reranker: bool = False,
+    reranker_model_key: str = DEFAULT_RERANKER_MODEL_KEY,
     use_metadata_scoring: bool = False,
 ) -> SearchConfig:
     
@@ -184,6 +187,12 @@ def get_config(
     if retrieval_mode not in RETRIEVAL_MODES:
         valid = ", ".join(RETRIEVAL_MODES)
         raise ValueError(f"Unknown retrieval mode '{retrieval_mode}'. Valid: {valid}")
+    
+    if reranker_model_key not in RERANKER_MODELS:
+        valid = ", ".join(RERANKER_MODELS)
+        raise ValueError(
+            f"Unknown rereanker model key '{reranker_model_key}'. Valid: {valid}"
+        )
 
     return SearchConfig(
         embedding_model_key = embedding_model_key,
@@ -203,7 +212,12 @@ def get_config(
 
         search_score_weight = search_score_weight,
         metadata_score_weight = metadata_score_weight,
+        use_metadata_scoring = use_metadata_scoring,
 
         use_reranker = use_reranker,
-        use_metadata_scoring = use_metadata_scoring,
+        reranker_model_key = reranker_model_key,
+        reranker_model_name = RERANKER_MODELS[reranker_model_key]
+
+
+        
     )
