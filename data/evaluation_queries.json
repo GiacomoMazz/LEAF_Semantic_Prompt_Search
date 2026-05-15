@@ -1,0 +1,32 @@
+[
+  {
+    "query": "prompt for debugging Python code"
+  },
+  {
+    "query": "write something persuasive for customers"
+  },
+  {
+    "query": "analyze sales data and find business insights"
+  },
+  {
+    "query": "explain how to remove a computer virus safely"
+  },
+  {
+    "query": "help me understand the important parts of a contract"
+  },
+  {
+    "query": "help me make my code better"
+  },
+  {
+    "query": "write a creative story with a fantasy setting"
+  },
+  {
+    "query": "improve my resume for a software engineering job"
+  },
+  {
+    "query": "translate text from English to Italian"
+  },
+  {
+    "query": "optimize indexing strategy for a database"
+  }
+]
