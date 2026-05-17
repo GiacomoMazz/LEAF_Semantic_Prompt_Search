@@ -409,6 +409,12 @@ query
 
 ## Installation
 
+This project was developed with:
+
+```text
+Python 3.12.4
+```
+
 Create and activate a virtual environment if desired.
 
 Then install dependencies:
