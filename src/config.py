@@ -79,7 +79,6 @@ RETRIEVAL_MODES = {
 
 DEFAULT_RETRIEVAL_MODE = "semantic"
 
-VECTOR_STORE = "chroma"
 DISTANCE_METRIC = "cosine"
 
 KEYWORD_TOP_K = 10
@@ -139,7 +138,6 @@ class SearchConfig:
         default_factory=lambda: make_collection_name(DEFAULT_EMBEDDING_MODEL_KEY)
     )
 
-    vector_store: str = VECTOR_STORE
     vector_db_dir: Path = VECTOR_DB_DIR
     distance_metric: str = DISTANCE_METRIC
 
