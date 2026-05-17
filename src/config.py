@@ -98,11 +98,11 @@ def make_collection_name(model_key: str) -> str:
 ## Reranking
 
 RERANKER_MODELS = {
-    "msmarco_minilm": "cross-encoder/ms-marco-MiniLM-L-6-v2",
-    "msmarco_tinybert": "cross-encoder/ms-marco-TinyBERT-L-2-v2"
+    "msmarco": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "tinybert": "cross-encoder/ms-marco-TinyBERT-L-2-v2"
 }
 
-DEFAULT_RERANKER_MODEL_KEY = "msmarco_minilm"
+DEFAULT_RERANKER_MODEL_KEY = "msmarco"
 
 ## metadata scoring
 
