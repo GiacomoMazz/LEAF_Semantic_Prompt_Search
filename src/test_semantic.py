@@ -11,7 +11,7 @@ def main():
         final_top_k=5,
     )
 
-    query = "I want to learn more about the virus"
+    query = "prompt for debugging Python code"
 
     embedder = SentenceTransformerEmbedder(config)
     store = ChromaVectorStore(config)
