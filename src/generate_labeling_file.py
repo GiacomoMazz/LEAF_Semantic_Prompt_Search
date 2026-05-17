@@ -25,6 +25,14 @@ def load_evaluation_queries(path: Path = QUERY_PATH) -> list[dict]:
 def make_experiments() -> dict:
     experiments = {}
 
+    experiments["keyword"] = get_config(
+        retrieval_mode = "keyword",
+        keyword_top_k = 50,
+        final_top_k = 10,
+        use_reranker = False,
+        use_metadata_scoring = False
+    )
+
     for embedding_model_key in EMBEDDING_MODELS:
         prefix = embedding_model_key
 
@@ -37,13 +45,13 @@ def make_experiments() -> dict:
             use_metadata_scoring = False
         )
 
-        experiments[f"{prefix}_semantic_reranker_minilm"] = get_config(
+        experiments[f"{prefix}_semantic_reranker_msmarco"] = get_config(
             embedding_model_key = embedding_model_key,
             retrieval_mode = "semantic",
             semantic_top_k = 50,
             final_top_k = 10,
             use_reranker = True,
-            reranker_model_key = "msmarco_minilm",
+            reranker_model_key = "msmarco",
             use_metadata_scoring = False
         )
 
@@ -53,17 +61,17 @@ def make_experiments() -> dict:
             semantic_top_k = 50,
             final_top_k = 10,
             use_reranker = True,
-            reranker_model_key = "msmarco_tinybert",
+            reranker_model_key = "tinybert",
             use_metadata_scoring = False
         )
 
-        experiments[f"{prefix}_semantic_reranker_metadata_minilm"] = get_config(
+        experiments[f"{prefix}_semantic_reranker_metadata_msmarco"] = get_config(
             embedding_model_key = embedding_model_key,
             retrieval_mode = "semantic",
             semantic_top_k = 50,
             final_top_k = 10,
             use_reranker = True,
-            reranker_model_key = "msmarco_minilm",
+            reranker_model_key = "msmarco",
             use_metadata_scoring = True,
             search_score_weight = 0.85,
             metadata_score_weight = 0.15
@@ -75,7 +83,7 @@ def make_experiments() -> dict:
             semantic_top_k = 50,
             final_top_k = 10,
             use_reranker = True,
-            reranker_model_key = "msmarco_tinybert",
+            reranker_model_key = "tinybert",
             use_metadata_scoring = True,
             search_score_weight = 0.85,
             metadata_score_weight = 0.15
@@ -95,7 +103,7 @@ def make_experiments() -> dict:
             use_metadata_scoring = False
         )
 
-        experiments[f"{prefix}_hybrid_reranker_minilm"] = get_config(
+        experiments[f"{prefix}_hybrid_reranker_msmarco"] = get_config(
             embedding_model_key = embedding_model_key,
             retrieval_mode = "hybrid",
             semantic_top_k = 50,
@@ -105,7 +113,7 @@ def make_experiments() -> dict:
             semantic_weight = 0.7,
             keyword_weight = 0.3,
             use_reranker = True,
-            reranker_model_key = "msmarco_minilm",
+            reranker_model_key = "msmarco",
             use_metadata_scoring = False
         )
 
@@ -119,11 +127,11 @@ def make_experiments() -> dict:
             semantic_weight = 0.7,
             keyword_weight = 0.3,
             use_reranker = True,
-            reranker_model_key = "msmarco_tinybert",
+            reranker_model_key = "tinybert",
             use_metadata_scoring = False
         )
 
-        experiments[f"{prefix}_hybrid_reranker_metadata_minilm"] = get_config(
+        experiments[f"{prefix}_hybrid_reranker_metadata_msmarco"] = get_config(
             embedding_model_key = embedding_model_key,
             retrieval_mode = "hybrid",
             semantic_top_k = 50,
@@ -133,7 +141,7 @@ def make_experiments() -> dict:
             semantic_weight = 0.7,
             keyword_weight = 0.3,
             use_reranker = True,
-            reranker_model_key = "msmarco_minilm",
+            reranker_model_key = "msmarco",
             use_metadata_scoring = True,
             search_score_weight = 0.85,
             metadata_score_weight = 0.15
@@ -149,20 +157,13 @@ def make_experiments() -> dict:
             semantic_weight = 0.7,
             keyword_weight = 0.3,
             use_reranker = True,
-            reranker_model_key = "msmarco_tinybert",
+            reranker_model_key = "tinybert",
             use_metadata_scoring = True,
             search_score_weight = 0.85,
             metadata_score_weight = 0.15
         )
     
-    experiments[f"{prefix}_keyword"] = get_config(
-            embedding_model_key = embedding_model_key,
-            retrieval_mode = "keyword",
-            keyword_top_k = 50,
-            final_top_k = 10,
-            use_reranker = False,
-            use_metadata_scoring = False
-        )
+
     
     return experiments
 

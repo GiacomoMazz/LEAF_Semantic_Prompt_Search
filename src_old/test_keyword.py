@@ -1,5 +1,3 @@
-# check if adding target model and difficulty help with accuracy or hurt
-
 # test_keyword_search.py
 
 from config import get_config
@@ -21,7 +19,7 @@ def main():
     retriever = TfidfKeywordRetriever(config)
     retriever.fit(processed_records)
 
-    query = "I want to learn more about the virus"
+    query = "prompt for debugging Python code"
 
     results = retriever.search(
         query=query,

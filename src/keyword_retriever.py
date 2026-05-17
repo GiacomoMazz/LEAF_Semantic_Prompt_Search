@@ -34,11 +34,11 @@ class TfidfKeywordRetriever:
         # score is calcuated based on cosine similarity to query
         scores = cosine_similarity(query_vector, self.tfidf_matrix).flatten()
 
-        top_indicies = scores.argsort()[::-1][:top_k]
+        top_indices = scores.argsort()[::-1][:top_k]
 
         results = []
 
-        for index in top_indicies:
+        for index in top_indices:
             record = self.records[index]
 
             results.append(

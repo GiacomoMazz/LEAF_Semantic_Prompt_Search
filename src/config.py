@@ -79,7 +79,6 @@ RETRIEVAL_MODES = {
 
 DEFAULT_RETRIEVAL_MODE = "semantic"
 
-VECTOR_STORE = "chroma"
 DISTANCE_METRIC = "cosine"
 
 KEYWORD_TOP_K = 10
@@ -98,11 +97,11 @@ def make_collection_name(model_key: str) -> str:
 ## Reranking
 
 RERANKER_MODELS = {
-    "msmarco_minilm": "cross-encoder/ms-marco-MiniLM-L-6-v2",
-    "msmarco_tinybert": "cross-encoder/ms-marco-TinyBERT-L-2-v2"
+    "msmarco": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "tinybert": "cross-encoder/ms-marco-TinyBERT-L-2-v2"
 }
 
-DEFAULT_RERANKER_MODEL_KEY = "msmarco_minilm"
+DEFAULT_RERANKER_MODEL_KEY = "msmarco"
 
 ## metadata scoring
 
@@ -139,7 +138,6 @@ class SearchConfig:
         default_factory=lambda: make_collection_name(DEFAULT_EMBEDDING_MODEL_KEY)
     )
 
-    vector_store: str = VECTOR_STORE
     vector_db_dir: Path = VECTOR_DB_DIR
     distance_metric: str = DISTANCE_METRIC
 

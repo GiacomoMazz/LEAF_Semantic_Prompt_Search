@@ -10,7 +10,7 @@ class ChromaVectorStore:
 
         self.collection = self.client.get_or_create_collection(
             name = config.collection_name,
-            metadata = {"hsnw:space": config.distance_metric}
+            metadata = {"hnsw:space": config.distance_metric}
         )
 
     # returns number of documents in collection

@@ -1,4 +1,3 @@
-
 import math
 
 class MetadataScorer:
@@ -79,8 +78,6 @@ class MetadataScorer:
 
         if max_value == min_value:
             for result in results:
-                # should this be 1 or zero
-                # should i change metadata fields in config to match score fields
                 result[normalized_key] = 0.0
             return
         
