@@ -42,12 +42,14 @@ LEAF_Semantic_Prompt_Search/
 │   ├── top_experiments_ndcg_at_10.png
 │   ├── pipeline_family_ndcg_at_10.png
 │   ├── embedding_model_comparison_ndcg_at_10.png
-│   └── reranker_comparison_ndcg_at_10.png
+│   ├── reranker_comparison_ndcg_at_10.png
+│   ├── latency_by_experiment.png
+│   └── ndcg_vs_latency.png
 │
 ├── chroma/
 │   └── ChromaDB persistent vector indexes
 │
-└── src/
+└── └── src/
     ├── config.py
     ├── data_loader.py
     ├── preprocessing.py
@@ -64,7 +66,8 @@ LEAF_Semantic_Prompt_Search/
     ├── build_indexes.py
     ├── generate_labeling_file.py
     ├── evaluation.py
-    └── plot_results.py
+    ├── plot_results.py
+    └── demo_streamlit.py
 ```
 
 ---
@@ -133,6 +136,8 @@ metadata
 `evaluation.py` computes evaluation metrics.
 
 `plot_results.py` creates plots from the evaluation results.
+
+`demo_streamlit` provides an interactive Streamlit interface for entering queries and viewing ranked prompt results.
 
 ---
 
@@ -349,7 +354,7 @@ Metadata scoring is implemented in:
 
 The metadata score uses engagement and quality signals:
 
-```pthon
+```python
 METADATA_SCORE_FIELDS = {
     "upvotes": 0.30,
     "likes": 0.22,
@@ -431,6 +436,7 @@ sentence-transformers==5.4.1
 scikit-learn==1.7.2
 pandas==2.2.2
 matplotlib==3.8.4
+streamlit==1.32.0
 ```
 
 ---
@@ -467,35 +473,35 @@ This folder should generally not be committed to Git.
 
 ---
 
-## Running the Search Pipeline
+## Running the Streamlit Demo
 
-The main pipeline is used through `SearchPipeline`.
+## Running the Streamlit Demo
 
-Example:
+The project includes an interactive Streamlit demo for running the search system.
 
-```python
-from config import get_config
-from pipelines import SearchPipeline
+Before running the demo, build the vector indexes:
 
-config = get_config(
-    embedding_model_key="bge_small",
-    retrieval_mode="hybrid",
-    semantic_top_k=50,
-    keyword_top_k=50,
-    merged_top_k=75,
-    final_top_k=10,
-    use_reranker=True,
-    reranker_model_key="msmarco",
-    use_metadata_scoring=True,
-)
-
-pipeline = SearchPipeline(config)
-
-results = pipeline.search("help me make my code better")
-
-for result in results:
-    print(result["id"], result["final_score"], result["metadata"].get("title"))
+```bash
+python src/build_indexes.py
 ```
+
+Then start the Streamlit app:
+
+```bash
+streamlit run src/demo_streamlit.py
+```
+
+The demo allows the user to:
+
+- enter a natural language query
+- choose the embedding model
+- choose the retrieval mode
+- enable or disable reranking
+- choose the reranker model
+- enable or disable metadata-aware scoring
+- select the number of final results
+
+The app returns ranked prompt results with their metadata and available scores.
 
 ---
 
@@ -554,7 +560,9 @@ Labels are:
 2 = highly relevant
 ```
 
-`retrieval_runs.csv` contains one row per query, experiment, result, and rank. It is used later to compute evaluation metrics.
+`retrieval_runs.csv` contains one row per query, experiment, result, rank, score values, and latency measurement. It is used later to compute evaluation metrics and average query latency.
+
+Latency is measured as the wall-clock time required for one full call to the search pipeline for a given query and experiment. This includes retrieval and, when enabled, reranking and metadata-aware scoring.
 
 The reason for separating these files is that relevance depends only on:
 
@@ -600,8 +608,9 @@ The evaluation computes:
 - **MRR**
 - **nDCG@5**
 - **nDCG@10**
+- **Average latency per query**
 
-The main metric is **nDCG@10**, because the relevance labels are graded. Unlike precision, nDCG rewards systems that rank highly relevant results above somewhat relevant results.
+The main ranking-quality metric is **nDCG@10**, because the relevance labels are graded. Unlike precision, nDCG rewards systems that rank highly relevant results above somewhat relevant results. Average latency is reported as an efficiency metric to compare the speed cost of different retrieval and reranking configurations.
 
 ---
 
@@ -653,9 +662,11 @@ top_experiments_ndcg_at_10.png
 pipeline_family_ndcg_at_10.png
 embedding_model_comparison_ndcg_at_10.png
 reranker_comparison_ndcg_at_10.png
+latency_by_experiment.png
+ndcg_vs_latency.png
 ```
 
-The most useful plot is generally the pipeline-family comparison, because it shows how each design choice affects performance.
+The most useful plots are the pipeline-family comparison and the nDCG-versus-latency plot. The pipeline-family plot shows how each design choice affects ranking quality, while the latency plot shows the tradeoff between retrieval quality and runtime.
 
 ---
 
@@ -680,6 +691,9 @@ The evaluation showed several clear patterns:
 
 6. **MiniLM and BGE-small were close in final performance.**  
    BGE-small achieved the best full-pipeline score, but MiniLM remained competitive.
+   
+7. **Reranking improved quality but increased latency.**  
+   The latency measurements show the runtime cost of cross-encoder reranking. This makes the final system evaluation a quality-efficiency tradeoff rather than only a relevance comparison.
 
 ---
 
@@ -755,6 +769,13 @@ Build indexes:
 ```bash
 python src/build_indexes.py
 ```
+Run the Streamlit demo after building indexes if you only want to test the search system interactively. The evaluation workflow is only needed to reproduce the reported metrics.
+
+Run the interactive demo:
+
+```bash
+streamlit run src/demo_streamlit.py
+```
 
 Generate retrieval runs and labeling file:
 
@@ -791,6 +812,9 @@ python src/plot_results.py
 - If the dataset or preprocessing template changes, the Chroma indexes should be rebuilt.
 - If the embedding model changes, a separate Chroma collection is required.
 - If experiment names change but query-result pairs remain the same, manual relevance labels do not need to be redone.
+- The Streamlit demo requires `streamlit` to be installed and the Chroma indexes to exist.
+- The reported latency values are measured during evaluation and may vary depending on hardware.
+- Manual relevance labeling is not required to reproduce the existing results because `completed_relevance_judgments.csv` is already included.
 
 ---
 
@@ -802,6 +826,6 @@ Possible extensions include:
 - learning metadata weights from user feedback
 - adding query filters for category, language, difficulty, or target model
 - saving the TF-IDF keyword index to disk
-- measuring latency per pipeline component
-- adding a user interface for interactive search
+- measuring latency separately for retrieval, reranking, and metadata scoring
+- improving the Streamlit interface with filters, saved searches, and result export
 - collecting real user click feedback for learning-to-rank
