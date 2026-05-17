@@ -1,3 +1,11 @@
+"""
+Plot evaluation results.
+
+This script reads the aggregated evaluation results and generates figures that
+compare ranking quality, pipeline families, embedding models, rerankers, latency,
+and quality-latency tradeoffs.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
