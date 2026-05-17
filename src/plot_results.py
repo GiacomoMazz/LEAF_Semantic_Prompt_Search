@@ -62,6 +62,59 @@ def add_pipeline_family(df: pd.DataFrame) -> pd.DataFrame:
     df["pipeline_family"] = df["experiment"].apply(family)
     return df
 
+def plot_latency_by_experiment(df: pd.DataFrame, top_n: int = 12) -> None:
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+
+    plot_df = df.sort_values("avg_latency_seconds", ascending=True).head(top_n).copy()
+    plot_df["experiment_short"] = plot_df["experiment"].apply(simplify_name)
+
+    plt.figure(figsize=(16, 9))
+    plt.bar(plot_df["experiment_short"], plot_df["avg_latency_seconds"])
+
+    plt.xlabel("Experiment")
+    plt.ylabel("Average latency per query (seconds)")
+    plt.title("Fastest Search Configurations by Average Query Latency")
+    plt.xticks(rotation=45, ha="right")
+
+    plt.tight_layout()
+
+    output_path = FIGURES_DIR / "latency_by_experiment.png"
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close()
+
+    print(f"Saved: {output_path}")
+
+
+def plot_ndcg_vs_latency(df: pd.DataFrame) -> None:
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+
+    plot_df = df.copy()
+    plot_df["experiment_short"] = plot_df["experiment"].apply(simplify_name)
+
+    plt.figure(figsize=(12, 8))
+    plt.scatter(plot_df["avg_latency_seconds"], plot_df["ndcg_at_10"])
+
+    for _, row in plot_df.iterrows():
+        plt.annotate(
+            row["experiment_short"],
+            (row["avg_latency_seconds"], row["ndcg_at_10"]),
+            fontsize=8,
+            xytext=(5, 5),
+            textcoords="offset points",
+        )
+
+    plt.xlabel("Average latency per query (seconds)")
+    plt.ylabel("nDCG@10")
+    plt.title("Quality-Latency Tradeoff")
+
+    plt.tight_layout()
+
+    output_path = FIGURES_DIR / "ndcg_vs_latency.png"
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close()
+
+    print(f"Saved: {output_path}")
+
 
 def plot_top_ndcg(df: pd.DataFrame, top_n: int = 12) -> None:
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
@@ -206,6 +259,10 @@ def main():
     plot_pipeline_family(df)
     plot_embedding_comparison(df)
     plot_reranker_comparison(df)
+
+    if "avg_latency_seconds" in df.columns:
+        plot_latency_by_experiment(df)
+        plot_ndcg_vs_latency(df)
 
 
 if __name__ == "__main__":

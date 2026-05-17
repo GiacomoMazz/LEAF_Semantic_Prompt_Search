@@ -1,12 +1,10 @@
-# build_index.py
 """
-Build the Chroma vector index for semantic prompt search.
+Build Chroma vector indexes for semantic prompt search.
 
-stores in chroma, one file for each embedding model
-
-names of folders:
-prompts_bge_small
-prompts_minilm
+This script loads the raw prompt dataset, preprocesses the records, embeds the
+processed prompt texts with each configured embedding model, and stores the
+resulting embeddings, documents, IDs, and metadata in persistent ChromaDB
+collections.
 """
 
 from config import get_config, EMBEDDING_MODELS

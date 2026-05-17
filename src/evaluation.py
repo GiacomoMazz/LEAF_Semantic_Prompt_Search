@@ -48,6 +48,12 @@ def load_runs(path = RUNS_PATH) -> list[dict]:
 
         for row in reader:
             row["rank"] = int(row["rank"])
+
+            if "latency_seconds" in row and row["latency_seconds"] != "":
+                row["latency_seconds"] = float(row["latency_seconds"])
+            else:
+                row["latency_seconds"] = 0.0
+
             rows.append(row)
     
     return rows
@@ -149,7 +155,8 @@ def evaluate(k_values = (5, 10)) -> list[dict]:
         query_metrics = {
             "experiment" : experiment,
             "query" : query,
-            "mrr" : mrr(rows, judgments)
+            "mrr" : mrr(rows, judgments),
+            "avg_latency_seconds" : rows[0].get("latency_seconds", 0.0)
         }
         for k in k_values:
             query_metrics[f"precision_at_{k}"] = precision_at_k(rows, judgments, k)

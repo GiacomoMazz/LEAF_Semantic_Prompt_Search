@@ -9,6 +9,7 @@ labels:
 
 import csv
 import json
+import time
 from pathlib import Path
 
 from config import DATA_DIR, get_config, EMBEDDING_MODELS
@@ -194,7 +195,9 @@ def main():
         for experiment_name, pipeline in pipelines.items():
             print(f"Running: {experiment_name}")
 
+            start_time = time.perf_counter()
             results = pipeline.search(query)
+            latency_seconds = time.perf_counter() - start_time
 
             for rank, result in enumerate(results, start = 1):
                 result_id = result["id"]
@@ -227,7 +230,8 @@ def main():
                         "keyword_score": result.get("keyword_score", ""),
                         "hybrid_score": result.get("hybrid_score", ""),
                         "reranker_score": result.get("reranker_score", ""),
-                        "metadata_score": result.get("metadata_score", "")
+                        "metadata_score": result.get("metadata_score", ""),
+                        "latency_seconds" : latency_seconds
                     }
                 )
     judgment_rows = list(judgment_rows_by_key.values())
@@ -260,7 +264,8 @@ def main():
             "keyword_score",
             "hybrid_score",
             "reranker_score",
-            "metadata_score"
+            "metadata_score",
+            "latency_seconds"
         ]
 
         writer = csv.DictWriter(file, fieldnames = fieldnames)

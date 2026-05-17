@@ -1,4 +1,12 @@
-# run with streamlit run ~/src/demo_streamlit.py
+"""
+Streamlit demo for the project.
+
+This script provides an interactive interface where users can enter a natural
+language query, choose retrieval and reranking options, and view ranked prompt
+results with metadata and score information. 
+
+It requires build_indexes.py to be run.
+"""
 
 import time
 
